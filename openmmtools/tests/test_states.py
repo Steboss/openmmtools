@@ -140,20 +140,43 @@ class TestThermodynamicState(object):
 
     def test_method_find_thermostat(self):
         """ThermodynamicState._find_thermostat() method."""
+        import sys
+        print('line 1')
+        sys.stdout.flush()
         system = copy.deepcopy(self.alanine_no_thermostat)
+        print('line 2')
+        sys.stdout.flush()
         assert ThermodynamicState._find_thermostat(system) is None
+        print('line 3')
+        sys.stdout.flush()
         thermostat = openmm.AndersenThermostat(self.std_temperature,
                                                1.0/unit.picosecond)
+        print('line 4')
+        sys.stdout.flush()
         system.addForce(thermostat)
+        print('line 5')
+        sys.stdout.flush()
         assert ThermodynamicState._find_thermostat(system) is not None
+        print('line 6')
+        sys.stdout.flush()
 
         # An error is raised with two thermostats.
         thermostat2 = openmm.AndersenThermostat(self.std_temperature,
                                                 1.0/unit.picosecond)
+        print('line 7')
+        sys.stdout.flush()
         system.addForce(thermostat2)
+        print('line 8')
+        sys.stdout.flush()
         with nose.tools.assert_raises(ThermodynamicsError) as cm:
+            print('line 8')
+            sys.stdout.flush()
             ThermodynamicState._find_thermostat(system)
+            print('line 9')
+            sys.stdout.flush()
         cm.exception.code == ThermodynamicsError.MULTIPLE_THERMOSTATS
+        print('line 10')
+        sys.stdout.flush()
 
     def test_method_is_barostat_consistent(self):
         """ThermodynamicState._is_barostat_consistent() method."""
