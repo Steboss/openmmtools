@@ -182,8 +182,8 @@ class TestThermodynamicState(object):
             print('line 9')
             sys.stdout.flush()
             ThermodynamicState._find_thermostat(system)
-            print('line 10')
-            sys.stdout.flush()
+        print('line 10')
+        sys.stdout.flush()
         cm.exception.code == ThermodynamicsError.MULTIPLE_THERMOSTATS
         print('line 11')
         sys.stdout.flush()
@@ -485,7 +485,7 @@ class TestThermodynamicState(object):
     def test_constructor_thermostat(self):
         """The system thermostat is properly configured on construction."""
         # If we don't specify a temperature without a thermostat, it complains.
-        system = self.alanine_no_thermostat
+        system = copy.deepcopy(self.alanine_no_thermostat)
         assert ThermodynamicState._find_thermostat(system) is None  # Test precondition.
         with nose.tools.assert_raises(ThermodynamicsError) as cm:
             ThermodynamicState(system=system)
