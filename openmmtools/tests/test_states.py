@@ -143,6 +143,16 @@ class TestThermodynamicState(object):
         import sys
         print('line 1')
         sys.stdout.flush()
+        print(self.alanine_no_thermostat)
+        sys.stdout.flush()
+        for i, force in enumerate(self.alanine_no_thermostat.getForces()):
+            print('force', i)
+            sys.stdout.flush()
+            print(force.__class__)
+            sys.stdout.flush()
+            copy.deepcopy(force)
+            print('force copied')
+            sys.stdout.flush()
         system = copy.deepcopy(self.alanine_no_thermostat)
         print('line 2')
         sys.stdout.flush()
@@ -169,13 +179,13 @@ class TestThermodynamicState(object):
         print('line 8')
         sys.stdout.flush()
         with nose.tools.assert_raises(ThermodynamicsError) as cm:
-            print('line 8')
-            sys.stdout.flush()
-            ThermodynamicState._find_thermostat(system)
             print('line 9')
             sys.stdout.flush()
+            ThermodynamicState._find_thermostat(system)
+            print('line 10')
+            sys.stdout.flush()
         cm.exception.code == ThermodynamicsError.MULTIPLE_THERMOSTATS
-        print('line 10')
+        print('line 11')
         sys.stdout.flush()
 
     def test_method_is_barostat_consistent(self):
