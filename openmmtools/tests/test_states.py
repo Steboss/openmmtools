@@ -141,6 +141,7 @@ class TestThermodynamicState(object):
     def test_method_find_thermostat(self):
         """ThermodynamicState._find_thermostat() method."""
         import sys
+        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
         print('line 1')
         sys.stdout.flush()
         print(self.alanine_no_thermostat)
@@ -485,15 +486,26 @@ class TestThermodynamicState(object):
     def test_constructor_thermostat(self):
         """The system thermostat is properly configured on construction."""
         # If we don't specify a temperature without a thermostat, it complains.
+        import sys, gc
+        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
         system = copy.deepcopy(self.alanine_no_thermostat)
+        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        print('system', system.thisown, system.this, sys.getrefcount(system))
         assert ThermodynamicState._find_thermostat(system) is None  # Test precondition.
         with nose.tools.assert_raises(ThermodynamicsError) as cm:
             ThermodynamicState(system=system)
+        gc.collect()
+        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        print('system', system.thisown, system.this, sys.getrefcount(system))
         assert cm.exception.code == ThermodynamicsError.NO_THERMOSTAT
 
         # With thermostat, temperature is inferred correctly,
         # and the barostat temperature is set correctly as well.
         system = copy.deepcopy(self.barostated_alanine)
+        gc.collect()
+        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        print('system', system.thisown, system.this, sys.getrefcount(system))
+        sys.stdout.flush()
         new_temperature = self.std_temperature + 1.0*unit.kelvin
         barostat = ThermodynamicState._find_barostat(system)
         assert get_barostat_temperature(barostat) != new_temperature  # Precondition.
