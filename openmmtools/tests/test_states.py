@@ -487,15 +487,27 @@ class TestThermodynamicState(object):
         """The system thermostat is properly configured on construction."""
         # If we don't specify a temperature without a thermostat, it complains.
         import sys, gc
-        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        def check_alanine_status():
+            print()
+            print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+            for i, force in enumerate(self.alanine_no_thermostat.getForces()):
+                print('\nforce', i)
+                sys.stdout.flush()
+                print(force.__class__)
+                sys.stdout.flush()
+                copy.deepcopy(force)
+                print('\nforce copied')
+                sys.stdout.flush()
+            print()
+        check_alanine_status()
         system = copy.deepcopy(self.alanine_no_thermostat)
-        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        check_alanine_status()
         print('system', system.thisown, system.this, sys.getrefcount(system))
         assert ThermodynamicState._find_thermostat(system) is None  # Test precondition.
         with nose.tools.assert_raises(ThermodynamicsError) as cm:
             ThermodynamicState(system=system)
         gc.collect()
-        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        check_alanine_status()
         print('system', system.thisown, system.this, sys.getrefcount(system))
         assert cm.exception.code == ThermodynamicsError.NO_THERMOSTAT
 
@@ -503,7 +515,7 @@ class TestThermodynamicState(object):
         # and the barostat temperature is set correctly as well.
         system = copy.deepcopy(self.barostated_alanine)
         gc.collect()
-        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        check_alanine_status()
         print('system', system.thisown, system.this, sys.getrefcount(system))
         sys.stdout.flush()
         new_temperature = self.std_temperature + 1.0*unit.kelvin
