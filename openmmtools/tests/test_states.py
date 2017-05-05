@@ -126,6 +126,7 @@ class TestThermodynamicState(object):
 
     def test_method_find_barostat(self):
         """ThermodynamicState._find_barostat() method."""
+        self.check_alanine_status()
         barostat = ThermodynamicState._find_barostat(self.barostated_alanine)
         assert isinstance(barostat, openmm.MonteCarloBarostat)
 
@@ -137,6 +138,18 @@ class TestThermodynamicState(object):
             with nose.tools.assert_raises(ThermodynamicsError) as cm:
                 ThermodynamicState._find_barostat(system)
             assert cm.exception.code == err_code
+
+        self.check_alanine_status()
+
+    def check_alanine_status(self):
+        import sys
+        print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
+        for i, force in enumerate(self.alanine_no_thermostat.getForces()):
+            print('\tforce', i, force.__class__)
+            sys.stdout.flush()
+            copy.deepcopy(force)
+            print('\tforce copied')
+            sys.stdout.flush()
 
     def test_method_find_thermostat(self):
         """ThermodynamicState._find_thermostat() method."""
@@ -487,27 +500,15 @@ class TestThermodynamicState(object):
         """The system thermostat is properly configured on construction."""
         # If we don't specify a temperature without a thermostat, it complains.
         import sys, gc
-        def check_alanine_status():
-            print()
-            print('self', self.alanine_no_thermostat.thisown, self.alanine_no_thermostat.this, sys.getrefcount(self.alanine_no_thermostat))
-            for i, force in enumerate(self.alanine_no_thermostat.getForces()):
-                print('\nforce', i)
-                sys.stdout.flush()
-                print(force.__class__)
-                sys.stdout.flush()
-                copy.deepcopy(force)
-                print('\nforce copied')
-                sys.stdout.flush()
-            print()
-        check_alanine_status()
+        self.check_alanine_status()
         system = copy.deepcopy(self.alanine_no_thermostat)
-        check_alanine_status()
+        self.check_alanine_status()
         print('system', system.thisown, system.this, sys.getrefcount(system))
         assert ThermodynamicState._find_thermostat(system) is None  # Test precondition.
         with nose.tools.assert_raises(ThermodynamicsError) as cm:
             ThermodynamicState(system=system)
         gc.collect()
-        check_alanine_status()
+        self.check_alanine_status()
         print('system', system.thisown, system.this, sys.getrefcount(system))
         assert cm.exception.code == ThermodynamicsError.NO_THERMOSTAT
 
@@ -515,7 +516,7 @@ class TestThermodynamicState(object):
         # and the barostat temperature is set correctly as well.
         system = copy.deepcopy(self.barostated_alanine)
         gc.collect()
-        check_alanine_status()
+        self.check_alanine_status()
         print('system', system.thisown, system.this, sys.getrefcount(system))
         sys.stdout.flush()
         new_temperature = self.std_temperature + 1.0*unit.kelvin
@@ -599,6 +600,8 @@ class TestThermodynamicState(object):
 
     def test_method_create_context(self):
         """ThermodynamicState.create_context() method."""
+        self.check_alanine_status()
+
         state = ThermodynamicState(self.toluene_vacuum, self.std_temperature)
         toluene_str = openmm.XmlSerializer.serialize(self.toluene_vacuum)
         test_integrators = self.get_integrators(self.std_temperature)
@@ -635,6 +638,8 @@ class TestThermodynamicState(object):
 
             # Get rid of old context. This test can create a lot of them.
             del context, integrator
+
+        self.check_alanine_status()
 
     def test_method_is_compatible(self):
         """ThermodynamicState context and state compatibility methods."""
@@ -678,6 +683,7 @@ class TestThermodynamicState(object):
 
     def test_method_apply_to_context(self):
         """ThermodynamicState.apply_to_context() method."""
+        self.check_alanine_status()
         friction = 5.0/unit.picosecond
         time_step = 2.0*unit.femtosecond
         state0 = ThermodynamicState(self.barostated_alanine, self.std_temperature)
@@ -747,6 +753,8 @@ class TestThermodynamicState(object):
             state1.apply_to_context(nvt_context)
         assert cm.exception.code == ThermodynamicsError.INCOMPATIBLE_ENSEMBLE
         del nvt_context, verlet_integrator
+
+        self.check_alanine_status()
 
     def test_method_reduced_potential(self):
         """ThermodynamicState.reduced_potential() method."""
